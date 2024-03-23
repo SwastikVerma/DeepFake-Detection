@@ -14,7 +14,8 @@ const Homepage = ()=>{
     const navigate = useNavigate();
     const [file, setFile] = useState();
     const [result, setResult] = useState();
-
+    const [accuracy,setAccuracy] = useState();
+    const [no_of_frames,setFrames] = useState();
     if(!user){
         setTimeout(() => {
             toast.error("Sign in again...")
@@ -25,10 +26,12 @@ const Homepage = ()=>{
     const upload = ()=>{
         const formData = new FormData();
         formData.append('file', file);
-        axios.post("https://7bca-103-104-226-58.ngrok-free.app/predict", formData)
+        axios.post("https://28fe-103-124-122-210.ngrok-free.app/predict", formData)
         .then(res => {
-            console.log(res.data.message);
-            setResult(res.data.message);
+            console.log(res);
+            setResult(res.data.prediction);
+            setAccuracy(res.data.accuracy);
+            setFrames(res.data.no_of_frames);
         })
         .catch(er => console.log(er))
     }
@@ -50,7 +53,9 @@ const Homepage = ()=>{
                         <button type="button" className="border mt-20" onClick={upload}>Upload</button>
                         </div>
                     </div>
-                    <div className="text-2xl">Result : {result}</div>
+                    <div className="text-2xl">Result : {result}<br/>Accuracy of the Result : {accuracy}%<br/>Number of Frames  : {no_of_frames}</div>
+                    
+                    
                 </div>
             </div>
             </>

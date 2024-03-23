@@ -44,8 +44,13 @@ async def upload_video(request: Request, file: UploadFile = File(...)):
     with open(os.path.join("videos", filename), "wb") as f:
         f.write(await file.read())
     prediction_frames = video_to_image(filename=filename)
-
+    # if len(prediction_frames) == 0:
+    #     temp = {"prediction":"No Face detected in a frame!!!","no_of_frames":0,"accuracy":"NA"}
+    #     return JSONResponse(content=temp)
+    cntt=0
+    cntf=0
     result = 0
+    sum = 0
     for img in prediction_frames:
         img_array = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
         img_array = tf.keras.preprocessing.image.img_to_array(img_array)
@@ -55,20 +60,33 @@ async def upload_video(request: Request, file: UploadFile = File(...)):
 
         # Make predictions
         predictions = model.predict(img_array)
-        # print("prediction : ",predictions)
+        sum+=predictions
+        print("prediction : ",predictions)
         if(predictions <= 0.6) :
             result = result - 1
+            cntf+=1
         else :
             result = result + 1
+            cntt+=1
 
         # Print or use the predictions as needed
         # print(predictions)
     
-    if result > 5:
-        response = {"prediction": "True"}
+    if cntt>= cntf+5:
+        accuracy = (sum/(cntt+cntf))*100
+        print("accuracyT:",accuracy)
+        response = {"prediction": "Real Video","no_of_frames":len(prediction_frames),"accuracy":accuracy}
     else:
-        response = {"prediction": "Fake"}
         
+        accuracy = (sum/(cntt+cntf))*100
+        print("accuracyF:",100-accuracy)
+        response = {"prediction": "Fake Video","no_of_frames":len(prediction_frames),"accuracy":accuracy}
+        
+    # Convert NumPy arrays to Python lists if needed
+    for key, value in response.items():
+        if isinstance(value, np.ndarray):
+            response[key] = value.tolist()
+
     return JSONResponse(content=response)
 
 
