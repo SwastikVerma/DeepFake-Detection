@@ -26,7 +26,7 @@ const Homepage = ()=>{
     const upload = ()=>{
         const formData = new FormData();
         formData.append('file', file);
-        axios.post("https://28fe-103-124-122-210.ngrok-free.app/predict", formData)
+        axios.post("https://5bca-150-129-29-30.ngrok-free.app/predict", formData)
         .then(res => {
             console.log(res);
             setResult(res.data.prediction);
